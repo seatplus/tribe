@@ -41,5 +41,5 @@ jobs:
         env:
           CC_TEST_REPORTER_ID: ad03949b8103a7ab619122ea70a3b040739d780417cc38e5847d4da43a1a69c4
         with:
-          coverageCommand: vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+          coverageCommand: vendor/bin/pest --coverage --ci
           debug: false
