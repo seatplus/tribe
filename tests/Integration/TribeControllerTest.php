@@ -86,6 +86,17 @@ it('redirects user after disable of tribe', function () {
         ->assertRedirect(route('tribe.index'));
 });
 
+it('seeds schedules tables with commands', function () {
+
+    $schedules = \Seatplus\Eveapi\Models\Schedules::all();
+
+    // assert that ApplyNicknamePolicyCommand is scheduled
+    expect($schedules->contains('job', \Seatplus\Tribe\Commands\ApplyNicknamePolicyCommand::class))->toBeTrue()
+        // assert that RunSquadSyncCommand is scheduled
+        ->and($schedules->contains('job', \Seatplus\Tribe\Commands\RunSquadSyncCommand::class))->toBeTrue();
+
+});
+
 function getControllerTribeMock(): Mockery\MockInterface
 {
     $tribe = getTribeMock();
