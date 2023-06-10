@@ -18,39 +18,15 @@ class GetTribeDetailsAction
     {
         $tribe = $this->tribe_repository->getTribe($tribe_id);
 
+        $pipes = match (auth()->user()->can('superuser')) {
+            true => $this->getAdminArray(),
+            default => $this->getNonAdminArray(),
+        };
+
         return Pipeline::send($tribe)
             ->through([
-                function (Tribe $tribe, Closure $next) {
-                    if ($tribe::isConnectorConfigured()) {
-                        return $next($tribe);
-                    }
-
-                    return [
-                        'status' => 'Missing Configuration',
-                        'url' => $tribe::getConnectorConfigUrl(),
-                    ];
-                },
-                function (Tribe $tribe, Closure $next) {
-                    if ($tribe::isTribeSetup()) {
-                        return $next($tribe);
-                    }
-
-                    return [
-                        'status' => 'Incomplete Setup',
-                        'url' => $tribe::getRegistrationUrl(),
-                    ];
-                },
-                function (Tribe $tribe, Closure $next) {
-                    if ($tribe::isTribeEnabled()) {
-                        return $next($tribe);
-                    }
-
-                    return [
-                        'status' => 'Disabled',
-                        'can_enable' => auth()->user()->can('superuser'),
-                    ];
-                },
-                function (Tribe $tribe, Closure $next) {
+                ...$pipes,
+                function (Tribe $tribe) {
 
                     $user = $tribe::findUser(auth()->user()->getAuthIdentifier());
 
@@ -68,5 +44,57 @@ class GetTribeDetailsAction
                 },
             ])->thenReturn();
 
+    }
+
+    private function getAdminArray(): array
+    {
+        return [
+            function (Tribe $tribe, Closure $next) {
+                if ($tribe::isConnectorConfigured()) {
+                    return $next($tribe);
+                }
+
+                return [
+                    'status' => 'Missing Configuration',
+                    'url' => $tribe::getConnectorConfigUrl(),
+                ];
+            },
+            function (Tribe $tribe, Closure $next) {
+                if ($tribe::isTribeSetup()) {
+                    return $next($tribe);
+                }
+
+                return [
+                    'status' => 'Incomplete Setup',
+                    'url' => $tribe::getRegistrationUrl(),
+                ];
+            },
+            function (Tribe $tribe, Closure $next) {
+                if ($tribe::isTribeEnabled()) {
+                    return $next($tribe);
+                }
+
+                return [
+                    'status' => 'Disabled',
+                    'can_enable' => true,
+                ];
+            },
+        ];
+    }
+
+    private function getNonAdminArray(): array
+    {
+        return [
+            function (Tribe $tribe, Closure $next) {
+                if ($tribe::isConnectorConfigured() && $tribe::isTribeSetup() && $tribe::isTribeEnabled()) {
+                    return $next($tribe);
+                }
+
+                return [
+                    'status' => 'Disabled',
+                    'can_enable' => false,
+                ];
+            },
+        ];
     }
 }
