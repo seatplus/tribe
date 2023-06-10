@@ -40,7 +40,7 @@ it('shows the tribe details page', function () {
         ->assertStatus(200)
         ->assertJson(fn (AssertableJson $json) => $json
             ->has('status')
-            ->where('status', 'Missing Configuration')
+            ->where('status', 'Disabled')
             ->etc()
         );
 });
