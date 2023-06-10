@@ -1,5 +1,8 @@
 <?php
 
+const ADMIN_PERMISSION = 'superuser';
+const VIEW_TRIBES_PERMISSION = 'view tribes';
+
 use function Pest\Laravel\actingAs;
 use Seatplus\Tribe\Http\Actions\GetTribeDetailsAction;
 
@@ -8,7 +11,7 @@ beforeEach(function () {
     $this->tribe_repository = app(\Seatplus\Tribe\TribeRepository::class);
 });
 
-it('returns "Missing Configuration" status if tribe is not configured', function () {
+it('returns correct status if tribe is not configured for admin or non-admin', function ($permission, $expected_status) {
 
     $tribe = getTribeMock();
 
@@ -20,13 +23,20 @@ it('returns "Missing Configuration" status if tribe is not configured', function
 
     $id = addTribeToRepository($tribe);
 
+    $this->givePermissionsToTestUser([$permission]);
+
+    actingAs($this->test_user);
+
     $tribe_details = (new GetTribeDetailsAction($this->tribe_repository))->execute($id);
 
     expect($tribe_details)->toHaveKey('status');
-    expect($tribe_details['status'])->toEqual('Missing Configuration');
-});
+    expect($tribe_details['status'])->toEqual($expected_status);
+})->with([
+    [ADMIN_PERMISSION, 'Missing Configuration'],
+    [VIEW_TRIBES_PERMISSION, 'Disabled']
+]);
 
-it('returns "Incomplete Setup" status if tribe is not setup', function () {
+it('returns "Incomplete Setup" status if tribe is not setup for admins and "Disabled" for non-admins', function ($permission, $expected_status) {
 
     $tribe = getTribeMock();
 
@@ -41,13 +51,20 @@ it('returns "Incomplete Setup" status if tribe is not setup', function () {
 
     $id = addTribeToRepository($tribe);
 
+    $this->givePermissionsToTestUser([$permission]);
+
+    actingAs($this->test_user);
+
     $tribe_details = (new GetTribeDetailsAction($this->tribe_repository))->execute($id);
 
     expect($tribe_details)->toHaveKey('status');
-    expect($tribe_details['status'])->toEqual('Incomplete Setup');
-});
+    expect($tribe_details['status'])->toEqual($expected_status);
+})->with([
+    [ADMIN_PERMISSION, 'Incomplete Setup'],
+    [VIEW_TRIBES_PERMISSION, 'Disabled']
+]);
 
-it('returns "Disabled" status if tribe is disabled', function () {
+it('returns "Disabled" status if tribe is disabled', function ($permission, $can_enable) {
 
     $tribe = getTribeMock();
 
@@ -62,15 +79,20 @@ it('returns "Disabled" status if tribe is disabled', function () {
 
     $id = addTribeToRepository($tribe);
 
+    $this->givePermissionsToTestUser([$permission]);
+
     actingAs($this->test_user);
 
     $tribe_details = (new GetTribeDetailsAction($this->tribe_repository))->execute($id);
 
-    expect($tribe_details)->toHaveKey('status');
-    expect($tribe_details['status'])->toEqual('Disabled');
-});
+    expect($tribe_details)->toHaveKey('status', 'Disabled');
+    expect($tribe_details)->toHaveKey('can_enable', $can_enable);
+})->with([
+    [ADMIN_PERMISSION, true],
+    [VIEW_TRIBES_PERMISSION, false]
+]);
 
-it('returns "Not Registered" status if user is not registered', function () {
+it('returns "Not Registered" status if user is not registered', function ($permission) {
 
     $tribe = getTribeMock();
 
@@ -91,13 +113,14 @@ it('returns "Not Registered" status if user is not registered', function () {
 
     $id = addTribeToRepository($tribe);
 
+    $this->givePermissionsToTestUser([$permission]);
+
     actingAs($this->test_user);
 
     $tribe_details = (new GetTribeDetailsAction($this->tribe_repository))->execute($id);
 
-    expect($tribe_details)->toHaveKey('status');
-    expect($tribe_details['status'])->toEqual('Not Registered');
-});
+    expect($tribe_details)->toHaveKey('status', 'Not Registered');
+})->with([ADMIN_PERMISSION, VIEW_TRIBES_PERMISSION]);
 
 it('returns "Registered" status if user is registered', function () {
 
