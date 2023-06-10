@@ -33,7 +33,7 @@ it('returns correct status if tribe is not configured for admin or non-admin', f
     expect($tribe_details['status'])->toEqual($expected_status);
 })->with([
     [ADMIN_PERMISSION, 'Missing Configuration'],
-    [VIEW_TRIBES_PERMISSION, 'Disabled']
+    [VIEW_TRIBES_PERMISSION, 'Disabled'],
 ]);
 
 it('returns "Incomplete Setup" status if tribe is not setup for admins and "Disabled" for non-admins', function ($permission, $expected_status) {
@@ -61,7 +61,7 @@ it('returns "Incomplete Setup" status if tribe is not setup for admins and "Disa
     expect($tribe_details['status'])->toEqual($expected_status);
 })->with([
     [ADMIN_PERMISSION, 'Incomplete Setup'],
-    [VIEW_TRIBES_PERMISSION, 'Disabled']
+    [VIEW_TRIBES_PERMISSION, 'Disabled'],
 ]);
 
 it('returns "Disabled" status if tribe is disabled', function ($permission, $can_enable) {
@@ -89,7 +89,7 @@ it('returns "Disabled" status if tribe is disabled', function ($permission, $can
     expect($tribe_details)->toHaveKey('can_enable', $can_enable);
 })->with([
     [ADMIN_PERMISSION, true],
-    [VIEW_TRIBES_PERMISSION, false]
+    [VIEW_TRIBES_PERMISSION, false],
 ]);
 
 it('returns "Not Registered" status if user is not registered', function ($permission) {
