@@ -2,6 +2,14 @@
 
 All notable changes to `tribe` will be documented in this file.
 
+## 1.1.1 - 2023-06-10
+
+### What's Changed
+
+- Fix/non admin by @herpaderpaldent in https://github.com/seatplus/tribe/pull/5
+
+**Full Changelog**: https://github.com/seatplus/tribe/compare/1.1.0...1.1.1
+
 ## 1.1.0 - 2023-06-09
 
 ### What's Changed
