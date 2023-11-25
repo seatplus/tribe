@@ -54,6 +54,12 @@ class TribeServiceProvider extends ServiceProvider implements DeferrableProvider
             __DIR__.'/../config/permissions.tribe.php',
             'web.permissions'
         );
+
+        // add jobs to seatplus schedule
+        $this->mergeConfigFrom(
+            __DIR__.'/../config/jobs.php',
+            'seatplus.updateJobs'
+        );
     }
 
     private function addPublications()
