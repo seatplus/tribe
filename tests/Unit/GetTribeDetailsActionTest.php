@@ -3,8 +3,9 @@
 const ADMIN_PERMISSION = 'superuser';
 const VIEW_TRIBES_PERMISSION = 'view tribes';
 
-use function Pest\Laravel\actingAs;
 use Seatplus\Tribe\Http\Actions\GetTribeDetailsAction;
+
+use function Pest\Laravel\actingAs;
 
 beforeEach(function () {
 
