@@ -2,6 +2,15 @@
 
 All notable changes to `tribe` will be documented in this file.
 
+## 1.2.0 - 2023-12-12
+
+### What's Changed
+
+* Update dependencies by @herpaderpaldent in https://github.com/seatplus/tribe/pull/6
+* Feature/schedules by @herpaderpaldent in https://github.com/seatplus/tribe/pull/7
+
+**Full Changelog**: https://github.com/seatplus/tribe/compare/1.1.1...1.2.0
+
 ## 1.1.1 - 2023-06-10
 
 ### What's Changed
